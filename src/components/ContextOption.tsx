@@ -4,7 +4,7 @@ export type ContextOptionProps = {
     onClick?: () => void;
 };
 
-export function ContextOption({ id, title, onClick }: ContextOptionProps) {
+export function ContextOption({ id, title }: ContextOptionProps) {
     return (
         <div className={"text-sm hover:bg-violet-200 text-right p-1"} id={id.toString()}>
             {title}

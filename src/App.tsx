@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import { DraggablePanel } from "./components/DraggablePanel.tsx";
-import { Node } from "./utils/LinkedList.ts";
+import { Leaf } from "./utils/LinkedList.ts";
 import {ColorPicker, useColor} from "react-color-palette";
 import "react-color-palette/css";
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,7 +13,7 @@ export default function App() {
     };
 
 
-    const [nodes, setNodes] = useState<Node[]>([]);
+    const [nodes, setNodes] = useState<Leaf[]>([]);
     const [dimX, setDimX] = useState(window.innerWidth);
     const [dimY, setDimY] = useState(window.innerHeight - 10);
     const [primaryColor, setPrimaryColor] = useColor(getLocalStorageColor('primaryColor', "#6a5acd"));
@@ -25,18 +25,21 @@ export default function App() {
     const helpPanelRef = useRef<HTMLDivElement>(null);
     const [helpPanelVisible, setHelpPanelVisible] = useState(false);
     const [isReparenting, setIsReparenting] = useState(false);
-    const [reparentingNode, setReparentingNode] = useState<Node>();
+    const [reparentingNode, setReparentingNode] = useState<Leaf>();
+    
     
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (primaryRef.current && !primaryRef.current.contains(event.target)) {
+            const target = event.target as Node | null;
+            
+            if (event.target &&  primaryRef.current && !primaryRef.current.contains(target)) {
                 setPrimaryOpen(false);
             }
-            if (secondaryRef.current && !secondaryRef.current.contains(event.target)) {
+            if (secondaryRef.current && !secondaryRef.current.contains(target)) {
                 setSecondaryOpen(false);
             }
 
-            if (helpPanelRef.current && !helpPanelRef.current.contains(event.target)) {
+            if (helpPanelRef.current && !helpPanelRef.current.contains(target)) {
                 setHelpPanelVisible(false);
             }
         };
@@ -50,22 +53,22 @@ export default function App() {
     useEffect(() => {
         console.log(nodes);
     }, [nodes]);
-    const addComponent = (parent: Node | null) => {
-        const newNode = new Node(parent);
+    const addComponent = (parent: Leaf | null) => {
+        const newNode = new Leaf(parent);
         updateNodesState(newNode);
     };
 
-    const updateNodeName = (node: Node, name: string) => {
+    const updateNodeName = (node: Leaf, name: string) => {
         node.setName(name); // Assume setName is a method in Node class to update the name
         updateNodesState(node);
     };
 
-    const deleteNode = (nodeForDeletion: Node) => {
+    const deleteNode = (nodeForDeletion: Leaf) => {
         nodeForDeletion.removeNodeAndOrphanChildren();
         setNodes(nodes.filter(node => node !== nodeForDeletion));
     }
     
-    const deleteBranch = (node: Node) => {
+    const deleteBranch = (node: Leaf) => {
         // Collect all nodes to be removed
         const nodesToRemove = collectNodesToRemove(node);
 
@@ -79,9 +82,9 @@ export default function App() {
     };
 
 // Helper function to collect all nodes to be removed
-    const collectNodesToRemove = (rootNode: Node): Set<Node> => {
-        const nodesToRemove = new Set<Node>();
-        const traverse = (node: Node) => {
+    const collectNodesToRemove = (rootNode: Leaf): Set<Leaf> => {
+        const nodesToRemove = new Set<Leaf>();
+        const traverse = (node: Leaf) => {
             nodesToRemove.add(node);
             node.children.forEach(child => traverse(child));
         };
@@ -89,13 +92,13 @@ export default function App() {
         return nodesToRemove;
     };
 
-    const handleReparent = (node: Node) => {
+    const handleReparent = (node: Leaf) => {
         toast.info("Select the new parent for the node.", {position: "top-center"});
         setIsReparenting(true);
         setReparentingNode(node); 
     };
     
-    const selectNewParent = (parent: Node) => {
+    const selectNewParent = (parent: Leaf) => {
         console.log("selectNewParent called with parent:", parent);
         console.log("Current reparentingNode:", reparentingNode);
         
@@ -109,7 +112,7 @@ export default function App() {
         setIsReparenting(false);
     }
 
-    const updateNodesState = (updatedNode: Node) => {
+    const updateNodesState = (updatedNode: Leaf) => {
         setNodes((prevNodes) => {
             const allNodes = new Set(prevNodes);
             allNodes.add(updatedNode);
@@ -126,7 +129,7 @@ export default function App() {
                                         backgroundSize: "40px 40px",
                                         backgroundImage: `radial-gradient(circle, ${secondaryColor.hex} 1.5px, ${primaryColor.hex} 1px)`}} 
                                         className={'flex flex-1 absolute'}>
-                {nodes.map((node, index) => (
+                {nodes.map((node) => (
                     <DraggablePanel
                         key={node.id}
                         node={node}

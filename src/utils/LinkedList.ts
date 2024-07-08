@@ -6,19 +6,19 @@ export type Coords = {
 }
 
 export class TreeManager {
-    private headNodes: Node[] = [];
+    private headNodes: Leaf[] = [];
 
-    addHeadNode(node: Node) {
+    addHeadNode(node: Leaf) {
         if (!this.headNodes.includes(node)) {
             this.headNodes.push(node);
         }
     }
 
-    removeHeadNode(node: Node) {
+    removeHeadNode(node: Leaf) {
         this.headNodes = this.headNodes.filter(headNode => headNode !== node);
     }
 
-    findNodeById(id: string): Node | null {
+    findNodeById(id: string): Leaf | null {
         for (const headNode of this.headNodes) {
             const foundNode = headNode.findNodeById(id);
             if (foundNode) {
@@ -30,14 +30,14 @@ export class TreeManager {
 }
 
 const treeManager = new TreeManager();
-export class Node {
+export class Leaf {
     id: string;
     name: string = ''
-    parent: Node | null = null;
-    children: Node[] = [];
+    parent: Leaf | null = null;
+    children: Leaf[] = [];
     coords: Coords = { posX: 0, posY: 0 };
 
-    constructor(parent: Node | null = null) {
+    constructor(parent: Leaf | null = null) {
         this.id = uuidv4(); // Generate a GUID for each node
         this.parent = parent;
         if (parent) {
@@ -55,7 +55,7 @@ export class Node {
         this.name = name;
     }
 
-    addNode(node: Node) {
+    addNode(node: Leaf) {
         this.children.push(node);
     }
 
@@ -74,7 +74,7 @@ export class Node {
         }
     }
 
-    removeNode(node: Node) {
+    removeNode(node: Leaf) {
         this.children = this.children.filter(child => child !== node);
         node.parent = null;
     }
@@ -94,8 +94,8 @@ export class Node {
         }
     }
 
-    toArray(): Node[] {
-        const elements: Node[] = [this];
+    toArray(): Leaf[] {
+        const elements: Leaf[] = [this];
         this.children.forEach(child => elements.push(...child.toArray()));
         return elements;
     }
@@ -108,7 +108,7 @@ export class Node {
         return parentNames + this.parent.name + '/';
     }
 
-    findNodeById(id: string): Node | null {
+    findNodeById(id: string): Leaf | null {
         if (this.id === id) {
             return this;
         }
@@ -147,8 +147,8 @@ export class Node {
         return "Successfully set new parent.";
     }
 
-    isValidNewParent(node: Node): boolean {
-        const stack: Node[] = [this];
+    isValidNewParent(node: Leaf): boolean {
+        const stack: Leaf[] = [this];
 
         while (stack.length > 0) {
             const current = stack.pop();

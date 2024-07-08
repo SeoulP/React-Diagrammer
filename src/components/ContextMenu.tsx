@@ -1,5 +1,5 @@
-import {isValidElement, ReactElement, useEffect, useRef, useState} from "react";
-import {ContextOption, ContextOptionProps} from "./ContextOption.tsx";
+import {ReactElement, useEffect, useRef, useState} from "react";
+import {ContextOptionProps} from "./ContextOption.tsx";
 
 type Props = {
     contextVisible: boolean;
@@ -7,13 +7,12 @@ type Props = {
     children: ReactElement<ContextOptionProps>[];
 };
 export function ContextMenu({children, contextVisible, setContextVisible}: Props) {
-    const [points, setPoints] = useState({ x: 0, y: 0 });
     const contextRef = useRef<HTMLDivElement>(null);
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (contextRef.current && !contextRef.current.contains(event.target)) {
+            if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
                 setVisible(false);
             }
         };

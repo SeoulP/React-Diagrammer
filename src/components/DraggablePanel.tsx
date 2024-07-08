@@ -1,19 +1,20 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDraggable } from "../utils/hooks/useDraggable.ts";
+import { useCallback, useEffect, useRef, useState } from "react";
+// @ts-ignore
+import { useDraggable } from '../utils/hooks/useDraggable';
 import { cn } from "../utils/TailwindMerge.ts";
-import { Coords, Node } from "../utils/LinkedList.ts";
+import { Coords, Leaf } from "../utils/LinkedList.ts";
 import { truncateString } from "../utils/StringHelpers.ts";
 import { ContextMenu } from "./ContextMenu.tsx";
 import {ContextOption} from "./ContextOption.tsx";
 
 type Props = {
-    node: Node;
-    onAddNode: (parent: Node | null) => void;
-    onNameChange: (node: Node, name: string) => void;
-    onReparent: (node: Node) => void;
-    onNewParentSelect: (node: Node) => void;
-    onDeleteBranch: (node: Node) => void;
-    onDelete: (node: Node) => void;
+    node: Leaf;
+    onAddNode: (parent: Leaf | null) => void;
+    onNameChange: (node: Leaf, name: string) => void;
+    onReparent: (node: Leaf) => void;
+    onNewParentSelect: (node: Leaf) => void;
+    onDeleteBranch: (node: Leaf) => void;
+    onDelete: (node: Leaf) => void;
     isReparenting: boolean
     canvasSize: { dimX: number, dimY: number }
 }
@@ -21,7 +22,7 @@ type Props = {
 export const DraggablePanel = ({ node, onAddNode, onNameChange, onReparent, onNewParentSelect, onDelete, onDeleteBranch, isReparenting, canvasSize }: Props) => {
     const [headerValue, setHeaderValue] = useState("");
     const [textAreaValue, setTextAreaValue] = useState("");
-    const textAreaRef = useRef(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [contextVisible, setContextVisible] = useState(false);

@@ -29,14 +29,14 @@ export const useDraggable = ({ onDrag = id } = {}) => {
     // it and update `transform` CSS property, React still rerenders
     // on every state change, and it LAGS
     const position = useRef({ posX: 0, posY: 0 });
-    const ref = useRef<HTMLElement>();
+    const ref = useRef();
 
     // we've moved the code into the hook, and it would be weird to
     // return `ref` and `handleMouseDown` to be set on the same element
     // why not just do the job on our own here and use a function-ref
     // to subscribe to `mousedown` too? it would go like this:
     const unsubscribe = useRef();
-    const legacyRef = useCallback((elem: HTMLDivElement) => {
+    const legacyRef = useCallback((elem) => {
         // in a production version of this code I'd use a
         // `useComposeRef` hook to compose function-ref and object-ref
         // into one ref, and then would return it. combining
@@ -54,10 +54,10 @@ export const useDraggable = ({ onDrag = id } = {}) => {
         if (!elem) {
             return;
         }
-        const handleMouseDown = (e: MouseEvent) => {
+        const handleMouseDown = (e) => {
             // don't forget to disable text selection during drag and drop
             // operations
-            (e.target as HTMLElement).style.userSelect = "none";
+            (e.target).style.userSelect = "none";
             setPressed(true);
         };
         elem.addEventListener("mousedown", handleMouseDown);
@@ -130,7 +130,7 @@ export const useDraggable = ({ onDrag = id } = {}) => {
     // actually it makes sense to return an array only when
     // you expect that on the caller side all of the fields
     // will be usually renamed
-    return [legacyRef, pressed] as const;
+    return [legacyRef, pressed];
 
     // > seems the best of them all to me
     // this code doesn't look pretty anymore, huh?
