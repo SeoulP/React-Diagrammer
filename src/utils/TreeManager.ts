@@ -9,6 +9,7 @@ class FlatLeaf {
     name: string = '';
     description: string = '';
     coords: Coords = {posX: 0, posY: 0};
+    dimensions: Coords = {posX: 0, posY: 0};
 }
 class FlatBranch {
     id: string | null = null;
@@ -41,6 +42,7 @@ export class TreeManager {
                 null, // Parent will be set later
                 [], // Initialize an empty array for sprouts
                 flatLeaf.coords,
+                flatLeaf.dimensions,
                 flatLeaf.name,
                 flatLeaf.description
             );
@@ -123,6 +125,7 @@ export class TreeManager {
         flatLeaf.name = leaf.name;
         flatLeaf.description = leaf.description;
         flatLeaf.coords = leaf.coords;
+        flatLeaf.dimensions = leaf.dimensions;
 
         flatLeaves.add(flatLeaf);
 

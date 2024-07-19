@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from "react-toastify";
 import { useLocalStorage } from "./utils/hooks/useLocalStorage";
 import Toolbar from "./components/Toolbar";
+import LineDrawer from "./components/LineDrawer.tsx";
 
 export default function App() {
     const [tree, setTree] = useLocalStorage<TreeManager>("TreeManager", new TreeManager(), {
@@ -18,6 +19,7 @@ export default function App() {
     const [LeafsNewRoot, setLeafsNewRoot] = useState<Leaf | null>(null);
     const [canvasSize] = useLocalStorage('CanvasSize', { dimX: window.innerWidth, dimY: window.innerHeight });
     const [colors] = useLocalStorage('colors', { 'primaryColor': "#6a5acd", 'secondaryColor': "#efefef" });
+    const [visibleLines] = useLocalStorage('Lines', false)
 
     const clearTree = () => {
         tree.clearTree();
@@ -54,6 +56,11 @@ export default function App() {
         setTree(tree);
     };
 
+    const resizeLeaf = (leaf: Leaf, dimensions: Coords) => {
+        leaf.setDimensions(dimensions);
+        setTree(tree);
+    };
+
     const setNewRoot = (leaf: Leaf) => {
         toast.info("Select the new parent for the node.", { position: "top-center" });
         setIsSettingNewRoot(true);
@@ -87,12 +94,13 @@ export default function App() {
                 width: canvasSize.dimX + 'px',
                 height: canvasSize.dimY + 'px',
                 backgroundSize: "40px 40px",
+                zIndex: -0,
                 backgroundImage: `radial-gradient(circle, ${colors.secondaryColor} 1.5px, ${colors.primaryColor} 1px)`
             }} className={'flex flex-1 absolute'}>
                 {Array.from(tree.leaves.values()).map((leaf: Leaf) => (
                     <DraggablePanel
                         key={leaf.id}
-                        node={leaf}
+                        leaf={leaf}
                         onAddNode={addLeaf}
                         onNameChange={updateLeafName}
                         onDescriptionChange={updateLeafDescription}
@@ -102,9 +110,11 @@ export default function App() {
                         onDeleteBranch={deleteBranch}
                         onDelete={deleteLeaf}
                         onMove={moveNode}
+                        onResize={resizeLeaf}
                         isReparenting={isSettingNewRoot}
                     />
                 ))}
+                {visibleLines && <LineDrawer leaves={tree.leaves} />}
             </div>
             <Toolbar addComponent={addLeaf} clearTree={clearTree}/>
         </div>

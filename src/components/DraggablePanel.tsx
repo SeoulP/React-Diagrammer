@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 // @ts-ignore
 import { useDraggable } from '../utils/hooks/useDraggable';
 import { cn } from "../utils/TailwindMerge.ts";
@@ -10,7 +10,7 @@ import { ContextOption } from "./ContextOption.tsx";
 import { useLocalStorage } from "../utils/hooks/useLocalStorage.tsx";
 
 type Props = {
-    node: Leaf;
+    leaf: Leaf;
     onAddNode: (parent: Leaf | null) => void;
     onNameChange: (node: Leaf, name: string) => void;
     onDescriptionChange: (node: Leaf, description: string) => void;
@@ -20,10 +20,11 @@ type Props = {
     onDeleteBranch: (node: Leaf) => void;
     onDelete: (node: Leaf) => void;
     onMove: (node: Leaf, coords: Coords) => void;
+    onResize: (node: Leaf, coords: Coords) => void;
     isReparenting: boolean;
 };
 
-export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionChange, onReparent, onRemoveRoot, onNewParentSelect, onDelete, onMove, onDeleteBranch, isReparenting }: Props) => {
+export const DraggablePanel = ({ leaf, onAddNode, onNameChange, onDescriptionChange, onReparent, onRemoveRoot, onNewParentSelect, onDelete, onMove, onResize, onDeleteBranch, isReparenting }: Props) => {
     const [headerValue, setHeaderValue] = useState("");
     const [textAreaValue, setTextAreaValue] = useState("");
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -44,8 +45,8 @@ export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionCha
             }
         };
 
-        if (node.name) setHeaderValue(node.name);
-        if (node.description) setTextAreaValue(node.description);
+        if (leaf.name) setHeaderValue(leaf.name);
+        if (leaf.description) setTextAreaValue(leaf.description);
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
@@ -54,12 +55,24 @@ export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionCha
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, [node.name, node.description]);
+    }, [leaf.name, leaf.description]);
+
+    useEffect(() => {
+        if (panelRef.current) {
+            handleResize(panelRef.current.offsetWidth, panelRef.current.offsetHeight);
+        }
+    }, []);
 
     const resizeTextArea = () => {
         if (!textAreaRef.current) return;
         textAreaRef.current.style.height = 'auto';
         textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    };
+
+    const handleResize = (width: number, height: number) => {
+        const constrainedWidth = Math.min(Math.max(100, width), canvasSize.dimX - 24);
+        const constrainedHeight = Math.min(Math.max(100, height), canvasSize.dimY - 24);
+        onResize(leaf, { posX: constrainedWidth, posY: constrainedHeight });
     };
 
     const [ref, pressed] = useDraggable({
@@ -69,39 +82,43 @@ export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionCha
             return { posX: constrainedX, posY: constrainedY };
         },
         onDragEnd: (coords: Coords) => {
-            onMove(node, coords);
+            onMove(leaf, coords);
         },
-        initialPosition: node.coords
+        initialPosition: leaf.coords
     });
-
-    const draggableProps = isShiftPressed ? {} : { ref };
 
     return (
         <div
             className={cn("mt-6 ml-3 absolute min-h-28 min-w-44 bg-violet-300 text-lg text-white rounded-md shadow shadow-neutral-600 flex flex-row items-center border-2 border-transparent hover:border-violet-200 hover:cursor-move", pressed && "hover:bg-opacity-60", isShiftPressed && "resize-x overflow-hidden", isReparenting && "hover:cursor-pointer")}
-            style={{ maxWidth: (canvasSize.dimX - 24) + 'px' }}
+            style={{ maxWidth: (canvasSize.dimX - 24) + 'px', width: leaf.dimensions.posX + 'px', height: leaf.dimensions.posY + 'px' }}
             onContextMenu={(e) => {
                 e.preventDefault();
             }}
             onClick={() => {
-                if (isReparenting && node) {
-                    onNewParentSelect(node);
+                if (isReparenting && leaf) {
+                    onNewParentSelect(leaf);
                 }
             }}
-            {...draggableProps}>
+            ref={isShiftPressed ? undefined : ref}
+            onMouseUp={() => {
+                if (isShiftPressed && panelRef.current) {
+                    handleResize(panelRef.current.offsetWidth, panelRef.current.offsetHeight);
+                }
+            }}
+        >
 
-            <div ref={panelRef} className={"flex flex-col w-full"}>
+            <div ref={panelRef} className={"flex flex-col w-full h-full"}>
                 <input id={"header"} type="text" placeholder={"Enter Name"} value={headerValue}
                        className={"absolute bg-indigo-100 text-sm text-slate-700 font-medium text-center max-w-36 h-6 ml-2 shadow shadow-violet-400 rounded-full -top-3 px-2 z-10 hover:bg-indigo-50"}
                        onChange={(e) => {
-                           if (node) onNameChange(node, e.target.value);
+                           if (leaf) onNameChange(leaf, e.target.value);
                            setHeaderValue(e.target.value);
                        }}>
                 </input>
 
                 <div id={"panel"} className={"flex flex-col w-full h-full"}>
-                    <div id={"parent-breadcrumb"} className={"text-neutral-500 relative text-xs top-1 h-4 max-w-32 text-nowrap pt-1 pl-4 underline"}>
-                        <div>{node && truncateString(node?.getRootNames(node), 20)}</div>
+                    <div id={"parent-breadcrumb"} className={"text-neutral-500 relative text-xs top-2 h-4 max-w-32 text-nowrap pt-1 pl-4 underline"}>
+                        <div>{leaf && truncateString(leaf?.getRootNames(leaf), 20)}</div>
                     </div>
 
                     <textarea
@@ -111,7 +128,7 @@ export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionCha
                         value={textAreaValue}
                         onChange={(e) => {
                             resizeTextArea();
-                            if (node) onDescriptionChange(node, e.target.value);
+                            if (leaf) onDescriptionChange(leaf, e.target.value);
                             setTextAreaValue(e.target.value);
                         }}>
                     </textarea>
@@ -132,19 +149,19 @@ export const DraggablePanel = ({ node, onAddNode, onNameChange, onDescriptionCha
 
             <ContextMenu contextVisible={contextVisible} setContextVisible={setContextVisible}>
                 <ContextOption id={1} title={"Add Child"} onClick={() => {
-                    onAddNode(node);
+                    onAddNode(leaf);
                 }}></ContextOption>
                 <ContextOption id={2} title={"Reparent"} onClick={() => {
-                    onReparent(node);
+                    onReparent(leaf);
                 }}></ContextOption>
-                <ContextOption id={2} title={"Decouple"} onClick={() => {
-                onRemoveRoot(node);
-            }}></ContextOption>
-                <ContextOption id={3} title={"Delete"} onClick={() => {
-                    onDelete(node);
+                <ContextOption id={3} title={"Decouple"} onClick={() => {
+                    onRemoveRoot(leaf);
                 }}></ContextOption>
-                <ContextOption id={4} title={"Delete Branch"} onClick={() => {
-                    onDeleteBranch(node);
+                <ContextOption id={4} title={"Delete"} onClick={() => {
+                    onDelete(leaf);
+                }}></ContextOption>
+                <ContextOption id={5} title={"Delete Branch"} onClick={() => {
+                    onDeleteBranch(leaf);
                 }}></ContextOption>
             </ContextMenu>
         </div>

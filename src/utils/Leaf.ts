@@ -10,8 +10,9 @@ export class Leaf {
     root: Leaf | null;
     sprouts: Leaf[];
     coords: Coords;
+    dimensions: Coords;
 
-    constructor(tree: TreeManager, id: string = '', root: Leaf | null = null, sprouts: Leaf[] = [], coords: Coords = {posX: 0, posY: 0}, name: string = '', description: string = '') {
+    constructor(tree: TreeManager, id: string = '', root: Leaf | null = null, sprouts: Leaf[] = [], coords: Coords = {posX: 0, posY: 0}, dimensions: Coords = {posX: 0, posY: 0}, name: string = '', description: string = '') {
         this.tree = tree;
         this.id = id !== '' ? id : uuidv4();
         this.root = root;
@@ -19,6 +20,7 @@ export class Leaf {
         this.name = name;
         this.description = description;
         this.coords = coords;
+        this.dimensions = dimensions;
         
         if (root) {
             root.addSprout(this);
@@ -27,6 +29,11 @@ export class Leaf {
     
     setCoords(coords: Coords): void {
         this.coords = coords;
+        this.tree.updateTree(this);
+    }
+    
+    setDimensions(dimensions: Coords): void {
+        this.dimensions = dimensions;
         this.tree.updateTree(this);
     }
 
