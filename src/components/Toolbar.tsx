@@ -1,6 +1,5 @@
 import {ColorPicker} from 'react-color-palette';
 import {useEffect, useRef, useState} from 'react';
-import useIsMobile from '../utils/hooks/useIsMobile.tsx';
 import {useLocalStorage} from '../utils/hooks/useLocalStorage.tsx';
 import {hexToIColor} from '../utils/IColorConverter.ts';
 import {Leaf} from '../utils/Leaf.ts';
@@ -48,9 +47,7 @@ export default function Toolbar({addComponent, clearTree}: Props) {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [primaryRef, secondaryRef, helpPanelRef]);
-
-    const isMobile = useIsMobile();
-
+    
     return (
         <div id="toolbar" className="fixed bottom-0 flex h-12 w-full justify-between bg-slate-300 shadow shadow-slate-500">
             <div id={'attribute-settings'} className={'max-md:text-md flex flex-row items-center gap-4 px-4 text-xl font-medium text-slate-500 max-md:gap-2 max-sm:text-sm'}>

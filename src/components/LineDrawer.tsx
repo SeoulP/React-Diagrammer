@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Leaf } from "./utils/Leaf.ts";
 import { useLocalStorage } from "../utils/hooks/useLocalStorage.tsx";
+import {Leaf} from "../utils/Leaf.ts";
 
 interface LineDrawerProps {
     leaves: Map<string, Leaf>;
@@ -31,7 +31,7 @@ const LineDrawer: React.FC<LineDrawerProps> = ({ leaves }) => {
                         // Create gradient
                         const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
                         gradient.addColorStop(1, colors.secondaryColor);
-                        gradient.addColorStop(0, `${colors.secondaryColor}20`); // 70% opacity
+                        gradient.addColorStop(0, `${colors.secondaryColor}15`); // 70% opacity
 
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
