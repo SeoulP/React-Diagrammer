@@ -28,10 +28,15 @@ const LineDrawer: React.FC<LineDrawerProps> = ({ leaves }) => {
                         const endX = leaf.root.coords.posX + (leaf.root.dimensions.posX / 1.75);
                         const endY = leaf.root.coords.posY + (leaf.root.dimensions.posY / 1.35);
 
+                        // Create gradient
+                        const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+                        gradient.addColorStop(1, colors.secondaryColor);
+                        gradient.addColorStop(0, `${colors.secondaryColor}20`); // 70% opacity
+
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
                         ctx.lineTo(endX, endY);
-                        ctx.strokeStyle = colors.secondaryColor; // Customize the color of the line
+                        ctx.strokeStyle = gradient; // Apply the gradient
                         ctx.stroke();
                     }
                 });
