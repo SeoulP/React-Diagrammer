@@ -33,7 +33,7 @@ export function ContextMenu({children, contextVisible, setContextVisible}: Props
     
     if (visible) return (
         <div ref={contextRef} onContextMenu={(e) => e.preventDefault} 
-             className="z-60 border-2 absolute -top-1 -right-4 shadow shadow-slate-500 m-5 rounded-md bg-violet-100 text-slate-600 text-sm">
+             className="absolute -top-1 -right-4 m-5 rounded-md border-2 bg-violet-100 text-sm text-slate-600 shadow shadow-slate-500 z-60">
             <ul>
                 {children.map((child) => {
                         return (
