@@ -200,6 +200,7 @@ export function useLocalStorage<T>(
 
     // Return a wrapped version of useState's setter function that ...
     // ... persists the new value to localStorage.
+    // @ts-ignore
     const setValue: Dispatch<SetStateAction<T>> = useEventCallback(value => {
         // Prevent build error "window is undefined" but keeps working
         if (IS_SERVER) {

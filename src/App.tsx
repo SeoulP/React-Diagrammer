@@ -77,7 +77,7 @@ export default function App() {
     
     const removeRoot = (leaf: Leaf) => {
         leaf.removeRoot();
-        setTree(tree);;
+        setTree(tree);
     }
     
     return (

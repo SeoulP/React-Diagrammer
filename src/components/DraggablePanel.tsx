@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+// @ts-ignore
 import { useDraggable } from '../utils/hooks/useDraggable';
 import { cn } from "../utils/TailwindMerge.ts";
-import { Coords, Leaf } from "../utils/Leaf.ts";
+import { Leaf } from "../utils/Leaf.ts";
+import { Coords } from "../utils/Coords.ts";
 import { truncateString } from "../utils/StringHelpers.ts";
 import { ContextMenu } from "./ContextMenu.tsx";
 import { ContextOption } from "./ContextOption.tsx";

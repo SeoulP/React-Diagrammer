@@ -11,7 +11,7 @@ class FlatLeaf {
     coords: Coords = {posX: 0, posY: 0};
 }
 class FlatBranch {
-    id: string | null;
+    id: string | null = null;
     flatBranches: FlatBranch[] = [];
 }
 export class TreeManager {
